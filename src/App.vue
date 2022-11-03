@@ -2,26 +2,63 @@
 import { ref } from "vue";
 
 const modalShow = ref(false);
+const newNote = ref("");
+const errorMessage = ref("");
+const notes = ref([]);
+
+function getRandomColor() {
+  return "hsl(" + Math.random() * 360 + ", 100%, 75%)";
+}
+
+const addNote = () => {
+  if (newNote.value.trim.length < 10) {
+    return (errorMessage.value = "needs to be ten character");
+  }
+
+  notes.value.push({
+    id: Math.floor(Math.random() * 1000000),
+    text: newNote.value,
+    date: new Date(),
+    backgroundColor: getRandomColor(),
+  });
+  modalShow.value = false;
+  newNote.value = "";
+  errorMessage.value = "";
+};
 </script>
 
 
 <template>
   <main>
-     <div v-show="modalShow" class="all-container"><div class="modal">
-        <textarea name="notes" id="notes" cols="20" rows="12"></textarea>
-        <button>Add Note</button>
+    <div v-show="modalShow" class="all-container">
+      <div class="modal">
+        <textarea
+          v-model="newNote"
+          name="notes"
+          id="notes"
+          cols="20"
+          rows="12"
+        ></textarea>
+        <p v-if="errorMessage">{{ errorMessage }}</p>
+        <button @click="addNote">Add Note</button>
         <button class="close" @click="modalShow = false">Close</button>
-      </div> </div>
-      
+      </div>
+    </div>
+
     <div class="container">
       <header>
-        <h2>Notes {{ modalShow }}</h2>
+        <h2>Notes</h2>
         <button @click="modalShow = true">+</button>
       </header>
       <div class="card-container">
-        <div class="card">
-          <p class="p-main"></p>
-          <p class="date"></p>
+        <div
+          v-for="note in notes"
+          :key="note.id"
+          class="card"
+          :style="{ backgroundColor: note.backgroundColor }"
+        >
+          <p class="p-main">{{ note.text }}</p>
+          <p class="date">{{ note.date.toLocaleDateString("en-US") }}</p>
         </div>
       </div>
     </div>
@@ -60,7 +97,7 @@ header button {
 .card {
   width: 150px;
   height: 150px;
-  background-color: orangered;
+  background-color: rgb(255, 255, 150);
   padding: 10px;
   border-radius: 15px;
   display: flex;
@@ -82,7 +119,7 @@ header button {
   width: 100%;
   height: 100%;
   background-color: rgb(126, 123, 123);
-  z-index: 10;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -108,5 +145,8 @@ header button {
 }
 .modal .close {
   background-color: rgb(180, 7, 7);
+}
+.modal p {
+  color: red;
 }
 </style>
